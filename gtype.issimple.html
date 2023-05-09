@@ -1,0 +1,121 @@
+<html>
+	<head>
+		<title>Typegame</title>
+		<style>
+			.now{
+				background:white;
+				color:black;
+			}
+			.passed{
+				background:white;
+				color:black;
+			}
+			.bad{
+				background:red;
+			}
+			body{
+				display:flex;
+				align-items:center;
+				justify-content:center;
+				background:#00153e;
+				font-family:monospace;
+				font-size:20px;
+				flex-direction:column;
+			}
+			body div{
+				width:500px;
+				background:#061d48;
+				padding:20px;
+				color:white;
+				border-radius:20px;
+				max-height:80%;
+			}
+		</style>
+	</head>
+	<body>
+		<div
+		style="
+			margin-bottom:20px;
+			width:auto;
+		"
+		>
+			<span>
+				Gtype.game
+			</span>
+		</div>
+		<div
+		id=fontsboard
+		style="
+			overflow:auto;
+		"
+		>
+			
+		</div>
+	</body>
+	<script>
+		const game = {
+			fontsboard:document.querySelector('#fontsboard'),
+			text:`Helloworld, this is gema. And this is my own typing game.`,
+			spans:null,
+			getText(){
+				const x = new XMLHttpRequest();
+				x.open('get','https://baconipsum.com/api/?type=meat-and-filler');
+				x.onload = ()=>{
+					this.text = JSON.parse(x.responseText)[0];
+					this.evaluateText();
+					this.displayText();
+					this.keyEventsetup();
+				}
+				x.send();
+			},
+			init(){
+				if(navigator.onLine)this.getText()
+				else this.pushOfflineMode();
+			},
+			pushOfflineMode(){
+				this.evaluateText();
+				this.displayText();
+				this.keyEventsetup();
+			},
+			evaluateText(){
+				let text = '';
+				let alreadyspace = false;
+				for(let char of this.text){
+					if(char === ' '){
+						if(alreadyspace){
+							alreadyspace = false;
+							continue
+						}else alreadyspace = true;
+					}else alreadyspace = false;
+					text += char;
+				}
+				this.text = text;
+			},
+			displayText(){
+				let alreadyspace = false;
+				this.text.split('').forEach((char,i)=>{
+					const span = document.createElement('span');
+					if(i===0)span.classList.add('now');
+					alreadyspace = false;
+					span.innerHTML = char;
+					this.fontsboard.appendChild(span);
+				})
+				this.spans = document.querySelectorAll('#fontsboard span');
+			},
+			keyEventsetup(){
+				let index = 0;
+				document.onkeydown = (e)=>{
+					const blacklistkey = ['Shift'];
+					if(blacklistkey.includes(e.key))return;
+					if(e.key===this.text[index]){
+						this.spans[index].classList.add('passed');
+						index++;
+						if(this.spans[index])this.spans[index].classList.add('now');
+						else alert('Win!');
+					}else this.spans[index].classList.add('bad');
+				}
+			}
+		}
+		game.init();
+	</script>
+</html>
